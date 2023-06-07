@@ -39,7 +39,7 @@ all_features = ['Form Name', 'Hospital', 'User Name', 'אבחנה-Age', 'אבח�
 
 
 def hot_one(df, category):
-    df = pd.get_dummies(df, prefix=category + "_", columns=[category])
+    df = pd.get_dummies(df, prefix=category + "_", columns=[category], dtype=int)
     return df
 
 
@@ -108,6 +108,7 @@ def filter_data(df) -> pd.DataFrame:
 
     # add the percentage of positive nodes
     df["percentage_nodes"] = df['אבחנה-Positive nodes'] / df['אבחנה-Nodes exam']
+    df = df.replace(np.inf, None)
 
     # the age he got the diagnosis is crucial
     df['אבחנה-Diagnosis date'] = pd.to_datetime(df['אבחנה-Diagnosis date'], format='%d/%m/%Y %H:%M')

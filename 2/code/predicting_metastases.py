@@ -5,8 +5,9 @@ from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import chi2
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.multiclass import OneVsRestClassifier
-from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import LogisticRegression, LinearRegression
 from sklearn.metrics import classification_report
+from sklearn.ensemble import RandomForestRegressor
 
 from predicting_metastases_filter import filter_data
 #######################
@@ -63,7 +64,7 @@ def fit_and_classify(X_train, y_train):
         Fits a multilabel classification model on the training data and performs classification on the test data.
         Returns classification report.
         """
-        model = OneVsRestClassifier(LogisticRegression())
+        model = OneVsRestClassifier(RandomForestRegressor())
         model.fit(X_train, y_train)
         return model
 
@@ -104,21 +105,28 @@ def plot_classification_report(report):
 
 def main():
     # Step 1: Load the data
-    file_path = "../data/test.feats.csv"
+    file_path = "../data/train.feats.csv"
     data = load_data(file_path)
 
     numercial_data = filter_data(data)
 
-    from sklearn.impute import KNNImputer
+    # for cat in numercial_data.keys():
+    #     print(f"{cat}: {max(numercial_data[cat])}")
+    numercial_data.to_csv('temp_data.csv')
+
+    from sklearn.impute import KNNImputer, SimpleImputer
 
     imputer = KNNImputer(n_neighbors=5)
+    #imputer = SimpleImputer(strategy='mean')
     numercial_data = imputer.fit_transform(numercial_data)
+    print(numercial_data)
 
     y_train = load_data("../data/train.labels.0.csv")
 
     # Step 5: Fit the classifier and perform classification
     model = fit_and_classify(numercial_data, y_train)
     y_predict = model.predict(numercial_data)
+    pd.DataFrame(y_predict).to_csv('../predictions/y_predict', index=False)
     r = classification_report(y_predict, y_train)
     print(r)
 
