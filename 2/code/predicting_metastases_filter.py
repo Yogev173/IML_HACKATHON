@@ -18,7 +18,7 @@ FEATURED_TO_DROP = ['id-hushed_internalpatientid', ' Form Name', ' Hospital', 'U
                     'surgery before or after-Activity date',
                     'surgery before or after-Actual activity', 'אבחנה-Ivi -Lymphovascular invasion',
                     'אבחנה-Lymphatic penetration', 'אבחנה-M -metastases mark (TNM)', 'אבחנה-N -lymph nodes mark (TNM)'
-    , 'אבחנה-T -Tumor mark (TNM)', 'אבחנה-Diagnosis date']
+    , 'אבחנה-T -Tumor mark (TNM)', 'אבחנה-Diagnosis date', 'אבחנה-Her2']
 
 CATEGORICAL = ['אבחנה-Histological diagnosis']
 
@@ -41,6 +41,21 @@ all_features = ['Form Name', 'Hospital', 'User Name', 'אבחנה-Age', 'אבח�
 def hot_one(df, category):
     df = pd.get_dummies(df, prefix=category + "_", columns=[category])
     return df
+
+
+def translate_degree(stage):
+    """
+    translate the stage of the cancer to level of sevirity
+    """
+    # undiffined cases we set to avrage
+    stage = str(stage)
+    if stage == "Null":
+        return None
+
+    if stage[1] == "X":
+        return None
+    else:
+        return int(stage[1])
 
 
 def translate_stage_4_levels(stage):
@@ -74,19 +89,22 @@ def translate_stage_17_levels(stage):
         return 8
 
     stage = stage.replace("Stage", "")
-    return int(stage[0])
+    var = 4 * int(stage[0])
+    if len(stage) == 2:
+        return var + 1 + ord(stage[1]) - ord("a")
+    else:
+        return var
 
 
 # mission 2: preprocess the data to be able to use it in the model,
 # and use it wisely todo add descrioption of specific activities!
 
 
-def load_data(filename: str) -> pd.DataFrame:
+def filter_data(df) -> pd.DataFrame:
     """
     load data from a csv file filename.csv into a pandas dataframe
     """
     # TODO DROPNA?
-    df = pd.read_csv(filename).drop_duplicates()
 
     # add the percentage of positive nodes
     df["percentage_nodes"] = df['אבחנה-Positive nodes'] / df['אבחנה-Nodes exam']
@@ -102,16 +120,17 @@ def load_data(filename: str) -> pd.DataFrame:
 
     # manage with the cancer stages
     df["אבחנה-Stage"] = df["אבחנה-Stage"].apply(translate_stage_17_levels)
+    df["אבחנה-Histopatological degree"] = df["אבחנה-Histopatological degree"].apply(translate_degree)
 
     df = df.drop(FEATURED_TO_DROP, axis=1)
 
     return df
 
 
-def main():
-    df = load_data("2/data/train.feats.csv")
-    print(df.keys())
-
-
-if __name__ == '__main__':
-    main()
+# def main():
+#     df = load_data("2/data/train.feats.csv")
+#     print(df.keys())
+#
+#
+# if __name__ == '__main__':
+#     main()

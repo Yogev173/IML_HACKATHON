@@ -7,6 +7,8 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report
+
+from predicting_metastases_filter import filter_data
 #######################
 
 def load_data(file_path):
@@ -56,15 +58,14 @@ def create_new_features(data):
         return data
 
 
-def fit_and_classify(X_train, X_test, y_train):
+def fit_and_classify(X_train, y_train):
         """
         Fits a multilabel classification model on the training data and performs classification on the test data.
         Returns classification report.
         """
         model = OneVsRestClassifier(LogisticRegression())
         model.fit(X_train, y_train)
-        y_pred = model.predict(X_test)
-        return y_pred
+        return model
 
 
 def plot_classification_report(report):
@@ -100,28 +101,29 @@ def plot_classification_report(report):
 
     plt.show()
 
+
 def main():
     # Step 1: Load the data
-    file_path = "data.csv"
+    file_path = "../data/test.feats.csv"
     data = load_data(file_path)
 
-    # Step 2: Split the data into training and testing sets
-    target_columns = ['label1', 'label2', 'label3']  # Replace with your target column names
-    X_train, X_test, y_train, y_test = split_data(data, target_columns)
+    numercial_data = filter_data(data)
 
-    # Step 3: Filter features if needed
-    k = 10  # Number of top features to select
-    X_train_filtered, X_test_filtered = filter_features(X_train, X_test, y_train, k)
+    from sklearn.impute import KNNImputer
 
-    # Step 4: Create new features if needed
-    data = create_new_features(data)
+    imputer = KNNImputer(n_neighbors=5)
+    numercial_data = imputer.fit_transform(numercial_data)
+
+    y_train = load_data("../data/train.labels.0.csv")
 
     # Step 5: Fit the classifier and perform classification
-    report = fit_and_classify(X_train_filtered, X_test_filtered, y_train)
-    print(report)
+    model = fit_and_classify(numercial_data, y_train)
+    y_predict = model.predict(numercial_data)
+    r = classification_report(y_predict, y_train)
+    print(r)
 
     # Step 6: Plot the classification report
-    plot_classification_report(report)
+    plot_classification_report(r)
 
 if __name__ == "__main__":
     main()
