@@ -18,7 +18,7 @@ FEATURED_TO_DROP = ['id-hushed_internalpatientid', ' Form Name', ' Hospital', 'U
                     'surgery before or after-Activity date',
                     'surgery before or after-Actual activity', 'אבחנה-Ivi -Lymphovascular invasion',
                     'אבחנה-Lymphatic penetration', 'אבחנה-M -metastases mark (TNM)', 'אבחנה-N -lymph nodes mark (TNM)'
-    , 'אבחנה-T -Tumor mark (TNM)']
+    , 'אבחנה-T -Tumor mark (TNM)', 'אבחנה-Diagnosis date']
 
 CATEGORICAL = ['אבחנה-Histological diagnosis']
 
@@ -95,7 +95,6 @@ def load_data(filename: str) -> pd.DataFrame:
     df['אבחנה-Diagnosis date'] = pd.to_datetime(df['אבחנה-Diagnosis date'], format='%d/%m/%Y %H:%M')
     df["age_diagnosted"] = df['אבחנה-Diagnosis date'].dt.year - (2023 - df['אבחנה-Age'])
     # drop the features that we've decided not to use
-    df = df.drop(FEATURED_TO_DROP, axis=1)
 
     # do on-hot on the categorical features
     for cat_feature in CATEGORICAL:
@@ -103,12 +102,15 @@ def load_data(filename: str) -> pd.DataFrame:
 
     # manage with the cancer stages
     df["אבחנה-Stage"] = df["אבחנה-Stage"].apply(translate_stage_17_levels)
+
+    df = df.drop(FEATURED_TO_DROP, axis=1)
+
     return df
 
 
 def main():
-    df = load_data("data/train.feats.csv")
-    print(df.head())
+    df = load_data("2/data/train.feats.csv")
+    print(df.keys())
 
 
 if __name__ == '__main__':
