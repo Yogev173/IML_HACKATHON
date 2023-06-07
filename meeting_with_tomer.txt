@@ -1,5 +1,5 @@
-לעשות one hot key encoding לתוצאות
-לעשות pca
+1) לעשות one hot key encoding לתוצאות
+בונוס: לעשות pca
 
 
 להתייחס לבית חולים כקטגוריה ולא כמספר
