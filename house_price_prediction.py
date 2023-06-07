@@ -1,12 +1,6 @@
-from IMLearn.utils import split_train_test
-from IMLearn.learners.regressors import LinearRegression
-
-from typing import NoReturn
+from typing import NoReturn, Tuple
 import numpy as np
 import pandas as pd
-import plotly.graph_objects as go
-import plotly.express as px
-import plotly.io as pio
 pio.templates.default = "simple_white"
 
 
@@ -26,46 +20,46 @@ def load_data(filename: str):
     df = pd.read_csv(filename).dropna().drop_duplicates()
     return df
 
-
-def feature_evaluation(X: pd.DataFrame, y: pd.Series, output_path: str = ".") -> NoReturn:
+def split_train_test(X: pd.DataFrame, y: pd.Series, train_proportion: float = .75) \
+        -> Tuple[pd.DataFrame, pd.Series, pd.DataFrame, pd.Series]:
     """
-    Create scatter plot between each feature and the response.
-        - Plot title specifies feature name
-        - Plot title specifies Pearson Correlation between feature and response
-        - Plot saved under given folder with file name including feature name
+    Randomly split given sample to a training- and testing sample
+
     Parameters
     ----------
     X : DataFrame of shape (n_samples, n_features)
-        Design matrix of regression problem
+        Data frame of samples and feature values.
 
-    y : array-like of shape (n_samples, )
-        Response vector to evaluate against
+    y : Series of shape (n_samples, )
+        Responses corresponding samples in data frame.
 
-    output_path: str (default ".")
-        Path to folder in which plots are saved
+    train_proportion: Fraction of samples to be split as training set
+
+    Returns
+    -------
+    train_X : DataFrame of shape (ceil(train_proportion * n_samples), n_features)
+        Design matrix of train set
+
+    train_y : Series of shape (ceil(train_proportion * n_samples), )
+        Responses of training samples
+
+    test_X : DataFrame of shape (floor((1-train_proportion) * n_samples), n_features)
+        Design matrix of test set
+
+    test_y : Series of shape (floor((1-train_proportion) * n_samples), )
+        Responses of test samples
+
     """
-    X = X.loc[:, ~(X.columns.str.contains('^zipcode_', case=False) |
-                   X.columns.str.contains('^decade_built_', case=False))]
-
-    for f in X:
-        rho = np.cov(X[f], y)[0, 1] / (np.std(X[f]) * np.std(y))
-
-        fig = px.scatter(pd.DataFrame({'x': X[f], 'y': y}), x="x", y="y", trendline="ols",
-                         color_discrete_sequence=["black"],
-                         title=f"Correlation Between {f} Values and Response <br>Pearson Correlation {rho}",
-                         labels={"x": f"{f} Values", "y": "Response Values"})
-        fig.write_image(output_path + f"/pearson.correlation.{f}.png")
-
+    train = X.sample(frac=train_proportion)
+    test = X.loc[X.index.difference(train.index)]
+    return train, y.loc[train.index], test, y.loc[test.index]
 
 if __name__ == '__main__':
     np.random.seed(0)
-    # Question 1 - Load and preprocessing of housing prices dataset
+    # Load and preprocessing the dataset
     df, price = load_data("../datasets/house_prices.csv")
 
-    # Question 2 - Feature evaluation with respect to response
-    feature_evaluation(df.loc[:, df.columns != "price"], price)
-
-    # Question 3 - Split samples into training- and testing sets.
+    # Split samples into training- and testing sets.
     train_X, train_y, test_X, test_y = split_train_test(df, price)
 
     # Question 4 - Fit model over increasing percentages of the overall training data
