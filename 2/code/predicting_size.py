@@ -67,27 +67,21 @@ def main():
     #     print(f"{cat}: {max(numercial_data[cat])}")
     numercial_data.to_csv('temp_data.csv')
 
-    from sklearn.impute import KNNImputer, SimpleImputer
+    from sklearn.impute import KNNImputer
 
-    # imputer = KNNImputer(n_neighbors=5)
-    imputer = SimpleImputer(strategy='mean')
+    imputer = KNNImputer(n_neighbors=4)
     numercial_data = imputer.fit_transform(numercial_data)
-    print(numercial_data)
+    numercial_data.to_csv('../data/train_feats_filtered.csv')
 
-    y_train = load_data("../data/train.labels.0.csv")
+    y_train = load_data("../data/train.labels.1.csv")
 
     # Step 5: Fit the classifier and perform classification
     # model = fit_and_classify(numercial_data, y_train)
-    model, label_binarizer = train_xgboost_classifier_model(numercial_data, y_train)
-    y_pred_encoded = model.predict(numercial_data)
-    y_pred_labels = label_binarizer.inverse_transform(y_pred_encoded)
+    model = xgb.XGBRegressor()
+    model.fit(numercial_data, y_train)
 
     # Example usage
-    print(y_pred_labels)
-    y_predict = model.predict(numercial_data)
-    pd.DataFrame(y_pred_labels).to_csv('../predictions/y_predict', index=False)
-    r = classification_report(y_pred_labels, y_train)
-    print(r)
+    model.
 
 
 

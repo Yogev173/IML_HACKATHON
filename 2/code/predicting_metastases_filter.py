@@ -127,6 +127,12 @@ def filter_data(df) -> pd.DataFrame:
 
     return df
 
+def make_y(y_df):
+    label_mapping = {'LYM - Lymph nodes': 0, 'PUL - Pulmonary': 1, 'BON - Bones': 2, 'SKI - Skin': 3,
+                     'HEP - Hepatic': 4}
+    newy = pd.DataFrame()
+    newy['LYM - Lymph nodes'] = y_df
+
 
 # def main():
 #     df = load_data("2/data/train.feats.csv")
