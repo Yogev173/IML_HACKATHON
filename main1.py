@@ -17,7 +17,7 @@ FEATURED_TO_DROP = ['id-hushed_internalpatientid', ' Form Name', ' Hospital', 'U
                     'אבחנה-er', 'אבחנה-pr', 'אבחנה-KI67 protein', 'אבחנה-Positive nodes', 'אבחנה-Nodes exam',
                     'surgery before or after-Activity date',
                     'surgery before or after-Actual activity', 'אבחנה-Ivi -Lymphovascular invasion',
-                    'אבחנה-Lymphatic penetration', 'אבחנה-M -metastases mark (TNM)', 'אבחנה-N -lymph nodes mark (TNM)'
+                     'אבחנה-M -metastases mark (TNM)', 'אבחנה-N -lymph nodes mark (TNM)'
     , 'אבחנה-T -Tumor mark (TNM)', 'אבחנה-Diagnosis date']
 
 CATEGORICAL = ['אבחנה-Histological diagnosis']
@@ -110,7 +110,7 @@ def load_data(filename: str) -> pd.DataFrame:
 
 def main():
     df = load_data("2/data/train.feats.csv")
-    print(df.keys())
+    print(df['אבחנה-Lymphatic penetration'].unique())
 
 
 if __name__ == '__main__':
