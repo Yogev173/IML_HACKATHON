@@ -79,9 +79,14 @@ def main():
     # model = fit_and_classify(numercial_data, y_train)
     model = xgb.XGBRegressor()
     model.fit(numercial_data, y_train)
+    
+    X_text = load_data('../data/test.feats.csv')
+    X_test_filtered = filter_data(X_text)
 
     # Example usage
-    model.
+    y_res = model.predict(X_test_filtered)
+    y_res.to_csv('../predictions/predictions2.csv')
+    
 
 
 
